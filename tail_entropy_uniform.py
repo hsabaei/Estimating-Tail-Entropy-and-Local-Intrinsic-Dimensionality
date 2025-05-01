@@ -19,20 +19,9 @@ import seaborn as sns
 import time
 
 def generate_uniform_data(n, low=0.0, high=1.0):
-    """Generate n samples from a Uniform(low, high) distribution."""
     return np.random.uniform(low=low, high=high, size=n)
 
 def direct_cumulative_tail_entropy(tail_samples):
-    """
-    Estimate the cumulative tail entropy from tail samples using spacings.
-
-    Parameters:
-        tail_samples: 1D NumPy array of sorted samples in the tail region [0, w],
-                      where w = tail_samples[-1].
-
-    Returns:
-        ncH_hat: normalized cumulative tail entropy (cumulative tail entropy divided by w).
-    """
     k = len(tail_samples)
     if k < 2:
         return np.nan  # Not enough samples to estimate
@@ -49,21 +38,7 @@ def direct_cumulative_tail_entropy(tail_samples):
     return ncH_hat
 
 def estimate_LID_MLE(tail_samples):
-    """
-    Estimate the local intrinsic dimensionality (LID) based on the Hill estimator.
 
-    Parameters:
-        tail_samples: 1D NumPy array of sorted tail samples (of length k).
-
-    Returns:
-        LID_est: Estimated local intrinsic dimensionality.
-
-    Hill estimator:
-    \[
-    \widehat{ID} = \left(\frac{1}{k-1}\sum_{j=1}^{k-1} \ln\frac{w}{X_{(j)}}\right)^{-1},
-    \]
-    where \(w\) is the k-th order statistic.
-    """
     k = len(tail_samples)
     if k < 2:
         return np.nan
@@ -74,17 +49,7 @@ def estimate_LID_MLE(tail_samples):
     return LID_est
 
 def LID_based_ncH(LID_est):
-    """
-    Compute the LID-based normalized cumulative tail entropy based on the asymptotic relation:
 
-    ncH(F,w) ≈ ID* / ((ID* + 1)^2).
-
-    Parameters:
-        LID_est: estimated local intrinsic dimension.
-
-    Returns:
-        ncH_LID: the LID-based estimate of normalized cumulative tail entropy.
-    """
     return LID_est / ((LID_est + 1) ** 2)
 
 # Experiment parameters
@@ -219,21 +184,7 @@ def direct_cumulative_tail_entropy(tail_samples):
     return ncH_hat
 
 def estimate_LID_MLE(tail_samples):
-    """
-    Estimate the local intrinsic dimensionality (LID) based on the Hill estimator.
 
-    Parameters:
-        tail_samples: 1D NumPy array of sorted tail samples (of length k).
-
-    Returns:
-        LID_est: Estimated local intrinsic dimensionality.
-
-    Hill estimator:
-    \[
-    \widehat{ID} = \left(\frac{1}{k-1}\sum_{j=1}^{k-1} \ln\frac{w}{X_{(j)}}\right)^{-1},
-    \]
-    where \(w\) is the k-th order statistic.
-    """
     k = len(tail_samples)
     if k < 2:
         return np.nan
@@ -244,17 +195,7 @@ def estimate_LID_MLE(tail_samples):
     return LID_est
 
 def LID_based_ncH(LID_est):
-    """
-    Compute the LID-based normalized cumulative tail entropy based on the asymptotic relation:
 
-    ncH(F,w) ≈ ID* / ((ID* + 1)^2).
-
-    Parameters:
-        LID_est: estimated local intrinsic dimension.
-
-    Returns:
-        ncH_LID: the LID-based estimate of normalized cumulative tail entropy.
-    """
     return LID_est / ((LID_est + 1) ** 2)
 
 # Experiment parameters
@@ -351,7 +292,7 @@ for k, res in results.items():
 
 n=10,000
 
-k=50,75,100,150,200"""
+k=50,100,300,500,1000"""
 
 import numpy as np
 import time
@@ -679,25 +620,6 @@ def kl_entropy_estimator(data, k=1):
     return Hn
 
 def direct_tail_entropy_power(tail_samples, total_samples):
-    """
-    Estimate the differential tail entropy using a spacing-based estimator and compute
-    the corresponding tail entropy power.
-
-    This estimator uses:
-      H_direct = (1/(k-1)) * sum_{j=1}^{k-1} ln[ (k-1) * (X_(j+1) - X_(j)) ]
-                 + psi(k-1) + gamma + ln(k/n),
-    where psi is the digamma function, gamma is the Euler-Mascheroni constant,
-    and n is the total sample size. Then, HP_direct = exp(H_direct) and the
-    normalized tail entropy power is HP_direct / w.
-
-    Parameters:
-        tail_samples: 1D NumPy array of sorted samples in the tail region [0, w],
-                      where w = tail_samples[-1].
-        total_samples: Integer, total number of samples (n) in the dataset.
-
-    Returns:
-        nHP_hat: Normalized tail entropy power estimate (HP_direct divided by w).
-    """
     k = len(tail_samples)
     if k < 2 or total_samples < k:
         return np.nan
@@ -728,19 +650,7 @@ def direct_tail_entropy_power(tail_samples, total_samples):
     return nHP_hat
 
 def estimate_LID_MLE(tail_samples):
-    """
-    Estimate the local intrinsic dimensionality (LID) based on the Hill estimator.
 
-    Parameters:
-        tail_samples: 1D NumPy array of sorted tail samples (of length k).
-
-    Returns:
-        LID_est: Estimated local intrinsic dimensionality.
-
-    Hill estimator for LID:
-      LID_est = 1 / [ (1/(k-1)) * sum_{j=1}^{k-1} ln( w / X_(j) ) ],
-    where w is the k-th order statistic.
-    """
     k = len(tail_samples)
     if k < 2:
         return np.nan
@@ -752,19 +662,7 @@ def estimate_LID_MLE(tail_samples):
     return LID_est
 
 def LID_based_nHP(LID_est):
-    """
-    Compute the LID-based normalized tail entropy power based on the asymptotic relation:
 
-       nHP(F,w) ≈ (1/ID_est) * exp(1 - 1/ID_est).
-
-    For the Uniform distribution (where ID_est is 1), this should yield 1.
-
-    Parameters:
-        LID_est: Estimated local intrinsic dimension (LID).
-
-    Returns:
-        nHP_LID: LID-based estimate of normalized tail entropy power.
-    """
     if LID_est <= 0:
         return np.nan
     return (1 / LID_est) * np.exp(1 - (1 / LID_est))
@@ -914,25 +812,7 @@ def kl_entropy_estimator(data, k=1):
     return Hn
 
 def direct_tail_entropy_power(tail_samples, total_samples):
-    """
-    Estimate the differential tail entropy using a spacing-based estimator and compute
-    the corresponding tail entropy power.
 
-    This estimator uses:
-      H_direct = (1/(k-1)) * sum_{j=1}^{k-1} ln[ (k-1) * (X_(j+1) - X_(j)) ]
-                 + psi(k-1) + gamma + ln(k/n),
-    where psi is the digamma function, gamma is the Euler-Mascheroni constant,
-    and n is the total sample size. Then, HP_direct = exp(H_direct) and the
-    normalized tail entropy power is HP_direct / w.
-
-    Parameters:
-        tail_samples: 1D NumPy array of sorted samples in the tail region [0, w],
-                      where w = tail_samples[-1].
-        total_samples: Integer, total number of samples (n) in the dataset.
-
-    Returns:
-        nHP_hat: Normalized tail entropy power estimate (HP_direct divided by w).
-    """
     k = len(tail_samples)
     if k < 2 or total_samples < k:
         return np.nan
@@ -963,19 +843,7 @@ def direct_tail_entropy_power(tail_samples, total_samples):
     return nHP_hat
 
 def estimate_LID_MLE(tail_samples):
-    """
-    Estimate the local intrinsic dimensionality (LID) based on the Hill estimator.
 
-    Parameters:
-        tail_samples: 1D NumPy array of sorted tail samples (of length k).
-
-    Returns:
-        LID_est: Estimated local intrinsic dimensionality.
-
-    Hill estimator for LID:
-      LID_est = 1 / [ (1/(k-1)) * sum_{j=1}^{k-1} ln( w / X_(j) ) ],
-    where w is the k-th order statistic.
-    """
     k = len(tail_samples)
     if k < 2:
         return np.nan
@@ -987,19 +855,7 @@ def estimate_LID_MLE(tail_samples):
     return LID_est
 
 def LID_based_nHP(LID_est):
-    """
-    Compute the LID-based normalized tail entropy power based on the asymptotic relation:
 
-       nHP(F,w) ≈ (1/ID_est) * exp(1 - 1/ID_est).
-
-    For the Uniform distribution (where ID_est is 1), this should yield 1.
-
-    Parameters:
-        LID_est: Estimated local intrinsic dimension (LID).
-
-    Returns:
-        nHP_LID: LID-based estimate of normalized tail entropy power.
-    """
     if LID_est <= 0:
         return np.nan
     return (1 / LID_est) * np.exp(1 - (1 / LID_est))
@@ -1102,7 +958,6 @@ plt.savefig('tail_entropy_power_mse.png')
 
 n=10,000
 
-k=50,75,100,150,200
 """
 
 import numpy as np
@@ -1115,16 +970,7 @@ from scipy.special import psi  # digamma function
 EULER_GAMMA = 0.57721566490153286060651209
 
 def generate_truncated_exponential_data(n, lam=1.0):
-    """
-    Generate n samples from a truncated exponential distribution on [0, 1].
 
-    Parameters:
-        n (int): Number of samples.
-        lam (float): Rate parameter of the exponential distribution.
-
-    Returns:
-        samples (np.ndarray): Samples from the truncated exponential distribution.
-    """
     u = np.random.uniform(0, 1, size=n)
     return -np.log(1 - u * (1 - np.exp(-lam))) / lam
 
@@ -1133,16 +979,7 @@ def generate_truncated_exponential_data(n, lam=1.0):
 from sklearn.neighbors import NearestNeighbors
 
 def kl_entropy_estimator(data, k=1):
-    """
-    Kozachenko–Leonenko entropy estimator for 1D data.
 
-    Parameters:
-        data (array): 1D array of sample points in [0, w]
-        k (int): number of nearest neighbors (usually k=1 for KL)
-
-    Returns:
-        Estimated differential entropy H(F,w)
-    """
     n = len(data)
     data = data.reshape(-1, 1)
 
@@ -1160,25 +997,7 @@ def kl_entropy_estimator(data, k=1):
     return Hn
 
 def direct_tail_entropy_power(tail_samples, total_samples):
-    """
-    Estimate the differential tail entropy using a spacing-based estimator and compute
-    the corresponding tail entropy power.
 
-    This estimator uses:
-      H_direct = (1/(k-1)) * sum_{j=1}^{k-1} ln[ (k-1) * (X_(j+1) - X_(j)) ]
-                 + psi(k-1) + gamma + ln(k/n),
-    where psi is the digamma function, gamma is the Euler-Mascheroni constant,
-    and n is the total sample size. Then, HP_direct = exp(H_direct) and the
-    normalized tail entropy power is HP_direct / w.
-
-    Parameters:
-        tail_samples: 1D NumPy array of sorted samples in the tail region [0, w],
-                      where w = tail_samples[-1].
-        total_samples: Integer, total number of samples (n) in the dataset.
-
-    Returns:
-        nHP_hat: Normalized tail entropy power estimate (HP_direct divided by w).
-    """
     k = len(tail_samples)
     if k < 2 or total_samples < k:
         return np.nan
@@ -1209,19 +1028,7 @@ def direct_tail_entropy_power(tail_samples, total_samples):
     return nHP_hat
 
 def estimate_LID_MLE(tail_samples):
-    """
-    Estimate the local intrinsic dimensionality (LID) based on the Hill estimator.
 
-    Parameters:
-        tail_samples: 1D NumPy array of sorted tail samples (of length k).
-
-    Returns:
-        LID_est: Estimated local intrinsic dimensionality.
-
-    Hill estimator for LID:
-      LID_est = 1 / [ (1/(k-1)) * sum_{j=1}^{k-1} ln( w / X_(j) ) ],
-    where w is the k-th order statistic.
-    """
     k = len(tail_samples)
     if k < 2:
         return np.nan
@@ -1233,39 +1040,13 @@ def estimate_LID_MLE(tail_samples):
     return LID_est
 
 def LID_based_nHP(LID_est):
-    """
-    Compute the LID-based normalized tail entropy power based on the asymptotic relation:
 
-       nHP(F,w) ≈ (1/ID_est) * exp(1 - 1/ID_est).
-
-    For the Uniform distribution (where ID_est is 1), this should yield 1.
-
-    Parameters:
-        LID_est: Estimated local intrinsic dimension (LID).
-
-    Returns:
-        nHP_LID: LID-based estimate of normalized tail entropy power.
-    """
     if LID_est <= 0:
         return np.nan
     return (1 / LID_est) * np.exp(1 - (1 / LID_est))
 
 def compute_HP_trunc_exp_groundtruth(w, lambd):
-    """
-    Compute the exact tail entropy power HP(F, w) for the truncated exponential distribution.
 
-    Parameters:
-        w : float
-            Tail cutoff in (0, 1]
-        lambd : float
-            Rate parameter of the truncated exponential distribution (λ > 0)
-
-    Returns:
-        HP : float
-            Tail entropy power HP(F, w)
-        nHP : float
-            Normalized HP: HP(F, w) / w
-    """
     A = (1 - np.exp(-lambd * w))
     HP = (A/lambd) * np.exp(1 - ((lambd * w * np.exp(-lambd * w)) / A))
     nHP = HP / w
@@ -1385,16 +1166,7 @@ from scipy.special import psi  # digamma function
 EULER_GAMMA = 0.57721566490153286060651209
 
 def generate_truncated_exponential_data(n, lam=1.0):
-    """
-    Generate n samples from a truncated exponential distribution on [0, 1].
 
-    Parameters:
-        n (int): Number of samples.
-        lam (float): Rate parameter of the exponential distribution.
-
-    Returns:
-        samples (np.ndarray): Samples from the truncated exponential distribution.
-    """
     u = np.random.uniform(0, 1, size=n)
     return -np.log(1 - u * (1 - np.exp(-lam))) / lam
 
@@ -1403,16 +1175,7 @@ def generate_truncated_exponential_data(n, lam=1.0):
 from sklearn.neighbors import NearestNeighbors
 
 def kl_entropy_estimator(data, k=1):
-    """
-    Kozachenko–Leonenko entropy estimator for 1D data.
 
-    Parameters:
-        data (array): 1D array of sample points in [0, w]
-        k (int): number of nearest neighbors (usually k=1 for KL)
-
-    Returns:
-        Estimated differential entropy H(F,w)
-    """
     n = len(data)
     data = data.reshape(-1, 1)
 
@@ -1430,25 +1193,7 @@ def kl_entropy_estimator(data, k=1):
     return Hn
 
 def direct_tail_entropy_power(tail_samples, total_samples):
-    """
-    Estimate the differential tail entropy using a spacing-based estimator and compute
-    the corresponding tail entropy power.
 
-    This estimator uses:
-      H_direct = (1/(k-1)) * sum_{j=1}^{k-1} ln[ (k-1) * (X_(j+1) - X_(j)) ]
-                 + psi(k-1) + gamma + ln(k/n),
-    where psi is the digamma function, gamma is the Euler-Mascheroni constant,
-    and n is the total sample size. Then, HP_direct = exp(H_direct) and the
-    normalized tail entropy power is HP_direct / w.
-
-    Parameters:
-        tail_samples: 1D NumPy array of sorted samples in the tail region [0, w],
-                      where w = tail_samples[-1].
-        total_samples: Integer, total number of samples (n) in the dataset.
-
-    Returns:
-        nHP_hat: Normalized tail entropy power estimate (HP_direct divided by w).
-    """
     k = len(tail_samples)
     if k < 2 or total_samples < k:
         return np.nan
@@ -1479,19 +1224,7 @@ def direct_tail_entropy_power(tail_samples, total_samples):
     return nHP_hat
 
 def estimate_LID_MLE(tail_samples):
-    """
-    Estimate the local intrinsic dimensionality (LID) based on the Hill estimator.
 
-    Parameters:
-        tail_samples: 1D NumPy array of sorted tail samples (of length k).
-
-    Returns:
-        LID_est: Estimated local intrinsic dimensionality.
-
-    Hill estimator for LID:
-      LID_est = 1 / [ (1/(k-1)) * sum_{j=1}^{k-1} ln( w / X_(j) ) ],
-    where w is the k-th order statistic.
-    """
     k = len(tail_samples)
     if k < 2:
         return np.nan
@@ -1503,39 +1236,13 @@ def estimate_LID_MLE(tail_samples):
     return LID_est
 
 def LID_based_nHP(LID_est):
-    """
-    Compute the LID-based normalized tail entropy power based on the asymptotic relation:
 
-       nHP(F,w) ≈ (1/ID_est) * exp(1 - 1/ID_est).
-
-    For the Uniform distribution (where ID_est is 1), this should yield 1.
-
-    Parameters:
-        LID_est: Estimated local intrinsic dimension (LID).
-
-    Returns:
-        nHP_LID: LID-based estimate of normalized tail entropy power.
-    """
     if LID_est <= 0:
         return np.nan
     return (1 / LID_est) * np.exp(1 - (1 / LID_est))
 
 def compute_HP_trunc_exp_groundtruth(w, lambd):
-    """
-    Compute the exact tail entropy power HP(F, w) for the truncated exponential distribution.
 
-    Parameters:
-        w : float
-            Tail cutoff in (0, 1]
-        lambd : float
-            Rate parameter of the truncated exponential distribution (λ > 0)
-
-    Returns:
-        HP : float
-            Tail entropy power HP(F, w)
-        nHP : float
-            Normalized HP: HP(F, w) / w
-    """
     A = (1 - np.exp(-lambd * w))
     HP = (A/lambd) * np.exp(1 - ((lambd * w * np.exp(-lambd * w)) / A))
     nHP = HP / w
@@ -1641,21 +1348,7 @@ plt.savefig('tail_entropy_power_mse.png')
 import numpy as np
 
 def compute_HP_trunc_exp_groundtruth(w, lambd):
-    """
-    Compute the exact tail entropy power HP(F, w) for the truncated exponential distribution.
 
-    Parameters:
-        w : float
-            Tail cutoff in (0, 1]
-        lambd : float
-            Rate parameter of the truncated exponential distribution (λ > 0)
-
-    Returns:
-        HP : float
-            Tail entropy power HP(F, w)
-        nHP : float
-            Normalized HP: HP(F, w) / w
-    """
     A = 1 - np.exp(-lambd * w)
     HP = (A / lambd) * np.exp(1 -( (lambd * w * np.exp(-lambd * w)) / A))
     nHP = HP / w
